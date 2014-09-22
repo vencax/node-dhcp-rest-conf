@@ -157,7 +157,7 @@ module.exports = (port, request) ->
       res.statusCode.should.eql 400
       done()
 
-  it "bud must create when IP is held by lease", (done) ->
+  it "but must create when IP is held by lease", (done) ->
     v = _getObj()
     v.ip = "192.168.1.233"
     request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
