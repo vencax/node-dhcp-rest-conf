@@ -2,7 +2,7 @@
 // Data are cached in object to accelerate the process
 // and leases are periodically loaded.
 
-var manip = require('js-wrap-py-dhcpd-manip');
+var manip = require('node-py-dhcpd-manip-wrapper');
 
 var _db = {};
 var _ip_index = {};

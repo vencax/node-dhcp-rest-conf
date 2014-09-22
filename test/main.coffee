@@ -15,7 +15,7 @@ describe "app", ->
   else
     # mock py-dhcp-wrapper
     horaa = require('horaa')
-    mockWrapper = horaa('js-wrap-py-dhcpd-manip')
+    mockWrapper = horaa('node-py-dhcpd-manip-wrapper')
 
     mockWrapper.hijack 'add', (name, mac, ip, cb) ->
       added =
