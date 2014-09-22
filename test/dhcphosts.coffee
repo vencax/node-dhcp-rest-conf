@@ -1,9 +1,8 @@
 
 should = require('should')
-request = require('request')
 
 
-module.exports = (port) ->
+module.exports = (port, request) ->
 
   _getObj = ->
     v =
@@ -35,7 +34,6 @@ module.exports = (port) ->
       res.statusCode.should.eql 400
       done()
 
-
   it "shall return the loaded list", (done) ->
     request "#{s}/dhcphosts", (err, res, body) ->
       return done err if err
@@ -50,7 +48,6 @@ module.exports = (port) ->
       return done err if err
       res.statusCode.should.eql 404
       done()
-
 
   it "should create new item on right POST request", (done) ->
     request.post "#{s}/dhcphosts/", {form: _getObj()}, (err, res, body) ->
@@ -150,4 +147,24 @@ module.exports = (port) ->
       body.length.should.eql 2
       for e in body
         e.res.should.eql true
+      done()
+
+  it "must not create anything when IP already reserved", (done) ->
+    v = _getObj()
+    v.ip = "192.168.1.1"
+    request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
+      return done err if err
+      res.statusCode.should.eql 400
+      done()
+
+  it "bud must create when IP is held by lease", (done) ->
+    v = _getObj()
+    v.ip = "192.168.1.233"
+    request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
+      return done err if err
+      res.statusCode.should.eql 201
+      body = JSON.parse(body)
+      body.name.should.eql 'newHost1'
+      body.ip.should.eql '192.168.1.233'
+      body.mac.should.eql '333333333333'
       done()

@@ -53,4 +53,4 @@ describe "app", ->
     done()
 
   # run the rest of tests
-  require('./dhcphosts')(port)
+  require('./dhcphosts')(port, request)

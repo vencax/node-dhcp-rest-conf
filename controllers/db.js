@@ -5,35 +5,7 @@
 var manip = require('js-wrap-py-dhcpd-manip');
 
 var _db = {};
-
-manip.getreserved(function(err, reserved){
-  if(err){
-    console.error(err);
-  } else{
-    for(var h in reserved){
-      _db[h] = reserved[h];
-      _db[h].mac = h;
-      _db[h].res = true;
-    }
-  }
-});
-
-var _refresh = function(){
-  manip.getleases(function(err, leases){
-    if(err){
-      console.error(err);
-    } else{
-      for(var l in leases){
-        var info = leases[l];
-        if(!(info[0] in _db)){
-          _db[info[0]] = {ip: l, mac: info[0], name: info[1], res: false};
-        }
-      }
-    }
-  });
-};
-
-_refresh();
+var _ip_index = {};
 
 var _list = function(){
   var vals = [];
@@ -51,10 +23,19 @@ var _get = function(mac){
   }
 };
 
+var _add_reserved = function(body) {
+  _db[body.mac] = {ip: body.ip, mac: body.mac, name: body.name, res: true};
+  _ip_index[body.ip] = _db[body.mac];
+};
+
 var _add = function(body, cb){
   // reservation already exists
   if(body.mac in _db && _db[body.mac].res === true){
     return cb('Already exists', body);
+  }
+
+  if(body.ip in _ip_index){
+    return cb('IP already reserved', body);
   }
 
   // lease exists -> change lease to reservation = just remove the lease from db
@@ -66,7 +47,7 @@ var _add = function(body, cb){
     if(err){
       cb(err, null);
     } else{
-      _db[body.mac] = {ip: body.ip, mac: body.mac, name: body.name, res: true};
+      _add_reserved(body);
       cb(null, body);
     }
   });
@@ -78,6 +59,7 @@ var _remove = function(host, cb){
       cb(err, null);
     } else{
       delete _db[host.mac];
+      delete _ip_index[host.ip];
       cb(null, removed);
     }
   });
@@ -103,3 +85,35 @@ module.exports = {
   update: _update,
   get: _get
 };
+
+// ----------------------- init --------------------------
+
+manip.getreserved(function(err, reserved){
+  if(err){
+    console.error(err);
+  } else{
+    for(var h in reserved){
+      var body = reserved[h];
+      body.mac = h;
+      body.res = true;
+      _add_reserved(body);
+    }
+  }
+});
+
+var _refresh = function(){
+  manip.getleases(function(err, leases){
+    if(err){
+      console.error(err);
+    } else{
+      for(var l in leases){
+        var info = leases[l];
+        if(!(info[0] in _db)){
+          _db[info[0]] = {ip: l, mac: info[0], name: info[1], res: false};
+        }
+      }
+    }
+  });
+};
+
+_refresh();
