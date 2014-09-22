@@ -9,7 +9,8 @@
   "dependencies": {
     "body-parser": "^1.8.2",
     "express": "^4.9.0",
-    "express-resource": "^1.0.0"
+    "express-resource": "^1.0.0",
+    "node-py-dhcpd-manip-wrapper": "git+https://github.com/vencax/node-py-dhcpd-manip-wrapper.git"
   },
   "devDependencies": {
     "coffee-script": "^1.8.0",
