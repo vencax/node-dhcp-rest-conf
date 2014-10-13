@@ -30,13 +30,21 @@ describe "app", ->
     mockWrapper.hijack 'getleases', (cb) ->
       leases =
         '192.168.1.233': ['112233445566', 'lease1']
-
       cb(null, leases)
 
     mockWrapper.hijack 'getreserved', (cb) ->
       reserved =
         '111111111111': {name: 'host1', ip: '192.168.1.1'}
       cb(null, reserved)
+
+    results = {}
+
+    child_process_moc = horaa('child_process')
+    child_process_moc.hijack 'exec', (prog, pars, cb) ->
+      rpars = if cb then pars else {}
+      cb ?= pars
+      results['res'] = [prog, rpars]
+      r = cb(null, null, null)
 
     # init server
     app = []
@@ -59,3 +67,4 @@ describe "app", ->
 
   # run the rest of tests
   require('./dhcphosts')(port, request)
+  require('./hoststate')(port, request, results)

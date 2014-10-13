@@ -28,10 +28,25 @@ var _add_reserved = function(body) {
   _ip_index[body.ip] = _db[body.mac];
 };
 
+var _get_free_ip = function() {
+  var first = _ip_index[Object.keys(_ip_index)[0]];
+  var net_part = first.ip.split('.').slice(0, 3).join('.');
+  for (var i=20; i<250; i++) {
+    var ip = net_part + '.' + i;
+    if (! (ip in _ip_index)) {
+      return ip;
+    }
+  }
+};
+
 var _add = function(body, cb){
   // reservation already exists
   if(body.mac in _db && _db[body.mac].res === true){
     return cb('Already exists', body);
+  }
+
+  if (!body.ip) {
+    body.ip = _get_free_ip();
   }
 
   if(body.ip in _ip_index){
@@ -39,7 +54,7 @@ var _add = function(body, cb){
   }
 
   // lease exists -> change lease to reservation = just remove the lease from db
-  if(body.mac in _db && _db[body.mac].res === true){
+  if(body.mac in _db && _db[body.mac].res === false){
     delete _db[body.mac];
   }
 

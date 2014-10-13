@@ -168,3 +168,18 @@ module.exports = (port, request) ->
       body.ip.should.eql '192.168.1.233'
       body.mac.should.eql '333333333333'
       done()
+
+  it "should create new item when ip missing", (done) ->
+    f =
+      mac: "112233445511"
+      name: "newHostWithGenIp"
+
+    request.post "#{s}/dhcphosts/", {form: f}, (err, res, body) ->
+      return done err if err
+      res.statusCode.should.eql 201
+      res.should.be.json
+      body = JSON.parse(body)
+      body.name.should.eql 'newHostWithGenIp'
+      should.exist body.ip
+      body.mac.should.eql '112233445511'
+      done()
