@@ -81,6 +81,7 @@ var _remove = function(host, cb){
     } else{
       delete _db[host.mac];
       delete _ip_index[host.ip];
+      delete _name_index[host.name];
       cb(null, removed);
     }
   });
