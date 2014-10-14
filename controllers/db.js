@@ -8,6 +8,21 @@ var _db = {};
 var _ip_index = {};
 var _name_index = {};
 
+var _hexdigit = [
+  'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F',
+  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+];
+
+var _normalize_mac = function(mac) {
+  var validated = [];
+  for(var i=0, len=mac.length; i<len; i++) {
+    if (_hexdigit.indexOf(mac[i]) >= 0) {
+      validated.push(mac[i]);
+    }
+  }
+  return validated.join('');
+};
+
 var _list = function(){
   var vals = [];
   for(var k in _db){
@@ -17,6 +32,7 @@ var _list = function(){
 };
 
 var _get = function(mac){
+  mac = _normalize_mac(mac);
   if(mac in _db){
     return _db[mac];
   } else{
@@ -25,7 +41,10 @@ var _get = function(mac){
 };
 
 var _add_reserved = function(body) {
-  _db[body.mac] = {ip: body.ip, mac: body.mac, name: body.name, res: true};
+  _db[body.mac] = {
+    ip: body.ip, mac: body.mac, name: body.name,
+    desc: body.desc, res: true
+  };
   _ip_index[body.ip] = _db[body.mac];
   _name_index[body.name] = _db[body.mac];
 };
@@ -42,6 +61,8 @@ var _add_reserved = function(body) {
 // };
 
 var _add = function(body, cb){
+  body.mac = _normalize_mac(body.mac);
+
   // reservation already exists
   if(body.mac in _db && _db[body.mac].res === true){
     return cb('MAC Already exists', body);
@@ -75,10 +96,15 @@ var _add = function(body, cb){
 };
 
 var _remove = function(host, cb){
+  host.mac = _normalize_mac(host.mac);
   manip.remove(host.mac, function(err, removed){
     if(err){
       cb(err, null);
     } else{
+      console.log(removed);
+      var removed = _db[host.mac];
+      removed.res = false;
+      // remove the reserved indexes
       delete _db[host.mac];
       delete _ip_index[host.ip];
       delete _name_index[host.name];
@@ -116,7 +142,7 @@ manip.getreserved(function(err, reserved){
   } else{
     for(var h in reserved){
       var body = reserved[h];
-      body.mac = h;
+      body.mac = _normalize_mac(h);
       body.res = true;
       body.desc = body.desc ? body.desc : '';
       _add_reserved(body);
