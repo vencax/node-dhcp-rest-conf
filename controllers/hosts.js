@@ -5,7 +5,7 @@ exports.index = function(req, res){
 };
 
 exports.create = function(req, res, next){
-  if(!req.body.name || !req.body.mac) {
+  if(!req.body.name || !req.body.mac || !req.body.ip) {
     return res.status(400).send('missing required param: name, mac, ip');
   }
   db.add(req.body, function(err, created){

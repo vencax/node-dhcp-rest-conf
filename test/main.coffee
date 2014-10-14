@@ -17,11 +17,12 @@ describe "app", ->
     horaa = require('horaa')
     mockWrapper = horaa('node-py-dhcpd-manip-wrapper')
 
-    mockWrapper.hijack 'add', (name, mac, ip, cb) ->
+    mockWrapper.hijack 'add', (name, mac, ip, desc, cb) ->
       added =
         name: name
         mac: mac
         ip: ip
+        desc: desc
       cb(null, added)
 
     mockWrapper.hijack 'remove', (mac, cb) ->
@@ -34,7 +35,7 @@ describe "app", ->
 
     mockWrapper.hijack 'getreserved', (cb) ->
       reserved =
-        '111111111111': {name: 'host1', ip: '192.168.1.1'}
+        '111111111111': {name: 'host1', ip: '192.168.1.1', desc: 'test host1'}
       cb(null, reserved)
 
     results = {}

@@ -23,6 +23,59 @@ module.exports = (port, request) ->
       res.statusCode.should.eql 400
       done()
 
+  it "must not create if requred param mac is missing", (done) ->
+    without = _getObj()
+    delete without['mac']
+
+    request.post "#{s}/dhcphosts", {form: without}, (err, res) ->
+      return done err if err
+      res.statusCode.should.eql 400
+      done()
+
+  it "must not create if requred param ip is missing", (done) ->
+    without = _getObj()
+    delete without['ip']
+
+    request.post "#{s}/dhcphosts", {form: without}, (err, res) ->
+      return done err if err
+      res.statusCode.should.eql 400
+      done()
+
+  it "must not create if mac already exists in DB", (done) ->
+    h =
+      mac: "111111111111"
+      ip: "192.168.1.11"
+      name: "newHost1"
+      desc: "testing voting 1 desc"
+
+    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
+      return done err if err
+      res.statusCode.should.eql 400
+      done()
+
+  it "must not create if ip already exists in DB", (done) ->
+    h =
+      mac: "111111111221"
+      ip: "192.168.1.1"
+      name: "newHost1"
+      desc: "testing voting 1 desc"
+
+    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
+      return done err if err
+      res.statusCode.should.eql 400
+      done()
+
+  it "must not create if name already exists in DB", (done) ->
+    h =
+      mac: "111111111221"
+      ip: "192.168.1.11"
+      name: "host1"
+      desc: "testing voting 1 desc"
+
+    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
+      return done err if err
+      res.statusCode.should.eql 400
+      done()
 
   it "must not create anything when already exists", (done) ->
     v =
@@ -58,6 +111,7 @@ module.exports = (port, request) ->
       body.name.should.eql 'newHost1'
       body.ip.should.eql '192.168.1.11'
       body.mac.should.eql '333333333333'
+      body.desc.should.eql 'testing voting 1 desc'
       done()
 
   created = undefined
@@ -149,37 +203,16 @@ module.exports = (port, request) ->
         e.res.should.eql true
       done()
 
-  it "must not create anything when IP already reserved", (done) ->
-    v = _getObj()
-    v.ip = "192.168.1.1"
-    request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
-      return done err if err
-      res.statusCode.should.eql 400
-      done()
-
-  it "but must create when IP is held by lease", (done) ->
-    v = _getObj()
-    v.ip = "192.168.1.233"
+  it "must create reservation when IP is held by lease", (done) ->
+    v =
+      mac: "aabbccaa1111"
+      name: "fromLeasedHost"
+      ip: "192.168.1.233"
     request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 201
       body = JSON.parse(body)
-      body.name.should.eql 'newHost1'
-      body.ip.should.eql '192.168.1.233'
-      body.mac.should.eql '333333333333'
-      done()
-
-  it "should create new item when ip missing", (done) ->
-    f =
-      mac: "112233445511"
-      name: "newHostWithGenIp"
-
-    request.post "#{s}/dhcphosts/", {form: f}, (err, res, body) ->
-      return done err if err
-      res.statusCode.should.eql 201
-      res.should.be.json
-      body = JSON.parse(body)
-      body.name.should.eql 'newHostWithGenIp'
-      should.exist body.ip
-      body.mac.should.eql '112233445511'
+      body.name.should.eql v.name
+      body.ip.should.eql v.ip
+      body.mac.should.eql v.mac
       done()
