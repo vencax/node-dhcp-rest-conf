@@ -5,7 +5,11 @@ exports.wake = function(req, res, next) {
   var m = util.colon_mac(util.normalize_mac(req.params.mac))
   var command = 'wakeonlan ' + m;
   exec(command, function (err, stdout, stderr) {
-    res.status(200).end();
+    if (err) {
+      res.status(400).send(stderr);
+    } else {
+      res.status(200).send(stdout);
+    }
   });
 };
 
