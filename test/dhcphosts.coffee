@@ -11,7 +11,7 @@ module.exports = (port, request) ->
       name: "newHost1"
       desc: "testing voting 1 desc"
 
-  s = "http://localhost:#{port}"
+  s = "http://localhost:#{port}/api"
 
 
   it "must not create if requred param (name) is missing", (done) ->

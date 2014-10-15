@@ -4,7 +4,7 @@ should = require('should')
 
 module.exports = (port, request, results) ->
 
-  s = "http://localhost:#{port}"
+  s = "http://localhost:#{port}/api"
 
 
   it "must wake up the given host", (done) ->
@@ -17,5 +17,3 @@ module.exports = (port, request, results) ->
       results.res.should.eql ["wakeonlan #{host}", {}]
       results = {}
       done()
-
-
