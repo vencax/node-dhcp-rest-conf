@@ -3,25 +3,11 @@
 // and leases are periodically loaded.
 
 var manip = require('node-py-dhcpd-manip-wrapper');
+var util = require('./util');
 
 var _db = {};
 var _ip_index = {};
 var _name_index = {};
-
-var _hexdigit = [
-  'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F',
-  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
-];
-
-var _normalize_mac = function(mac) {
-  var validated = [];
-  for(var i=0, len=mac.length; i<len; i++) {
-    if (_hexdigit.indexOf(mac[i]) >= 0) {
-      validated.push(mac[i]);
-    }
-  }
-  return validated.join('');
-};
 
 var _list = function(){
   var vals = [];
@@ -32,7 +18,7 @@ var _list = function(){
 };
 
 var _get = function(mac){
-  mac = _normalize_mac(mac);
+  mac = util.normalize_mac(mac);
   if(mac in _db){
     return _db[mac];
   } else{
@@ -62,7 +48,7 @@ var _add_reserved = function(body) {
 // };
 
 var _add = function(body, cb){
-  body.mac = _normalize_mac(body.mac);
+  body.mac = util.normalize_mac(body.mac);
 
   // reservation already exists
   if(body.mac in _db && _db[body.mac].res === true){
@@ -97,7 +83,7 @@ var _add = function(body, cb){
 };
 
 var _remove = function(host, cb){
-  host.mac = _normalize_mac(host.mac);
+  host.mac = util.normalize_mac(host.mac);
   manip.remove(host.mac, function(err, removed){
     if(err){
       cb(err, null);
@@ -152,7 +138,7 @@ manip.getreserved(function(err, reserved){
   } else{
     for(var h in reserved){
       var body = reserved[h];
-      body.mac = _normalize_mac(h);
+      body.mac = util.normalize_mac(h);
       body.res = true;
       body.desc = body.desc ? body.desc : '';
       _add_reserved(body);

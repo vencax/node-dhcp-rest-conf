@@ -14,6 +14,6 @@ module.exports = (port, request, results) ->
     request.put "#{s}/hoststate/#{host}", (err, res) ->
       return done err if err
       res.statusCode.should.eql 200
-      results.res.should.eql ["wakeonlan #{host}", {}]
+      results.res.should.eql ["wakeonlan 11:22:33:44:11:22", {}]
       results = {}
       done()
