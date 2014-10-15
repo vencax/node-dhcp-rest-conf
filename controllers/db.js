@@ -47,6 +47,7 @@ var _add_reserved = function(body) {
   };
   _ip_index[body.ip] = _db[body.mac];
   _name_index[body.name] = _db[body.mac];
+  return _db[body.mac];
 };
 
 // var _get_free_ip = function() {
@@ -68,9 +69,9 @@ var _add = function(body, cb){
     return cb('MAC Already exists', body);
   }
 
-//   if (!body.ip) {
-//     body.ip = _get_free_ip();
-//   }
+  //   if (!body.ip) {
+  //     body.ip = _get_free_ip();
+  //   }
 
   if(body.ip in _ip_index && _ip_index[body.ip].res === true){
     return cb('IP already reserved', body);
@@ -89,8 +90,8 @@ var _add = function(body, cb){
     if(err){
       cb(err, null);
     } else{
-      _add_reserved(body);
-      cb(null, body);
+      var newi = _add_reserved(body);
+      cb(null, newi);
     }
   });
 };
@@ -114,6 +115,15 @@ var _remove = function(host, cb){
 };
 
 var _update = function(host, body, cb){
+
+  if (host.ip !== body.ip && body.ip in _ip_index) {
+    return cb('IP already reserved', body);
+  }
+
+  if (host.name !== body.name && body.name in _name_index){
+    return cb('Name already reserved', body);
+  }
+
   _remove(host, function(err, removed){
     if(err){
       return cb(err, null);
