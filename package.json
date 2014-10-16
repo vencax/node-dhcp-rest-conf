@@ -1,6 +1,6 @@
 {
   "name": "node-dhcp-rest-conf",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "REST server for DHCPd maintainence",
   "main": "main.js",
   "engines": {

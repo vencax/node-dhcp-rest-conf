@@ -57,7 +57,7 @@ describe "app", ->
       app = express()
       app.use(bodyParser.urlencoded({ extended: false }))
       app.use(bodyParser.json())
-      app.use('/', require(__dirname + '/../app'))
+      app.use('/', require(__dirname + '/../index'))
       server = app.listen(port, (err) ->
         return done(err) if err
         done()
