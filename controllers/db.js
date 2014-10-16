@@ -88,7 +88,6 @@ var _remove = function(host, cb){
     if(err){
       cb(err, null);
     } else{
-      console.log(removed);
       var removed = _db[host.mac];
       removed.res = false;
       // remove the reserved indexes
