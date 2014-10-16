@@ -3,6 +3,8 @@ should = require('should')
 http = require('http')
 request = require('request').defaults({timeout: 5000})
 fs = require('fs')
+bodyParser = require('body-parser')
+express = require('express')
 
 port = process.env.PORT || 3333
 
@@ -52,7 +54,10 @@ describe "app", ->
     server = []
 
     before (done) ->
-      app = require(__dirname + '/../app').app
+      app = express()
+      app.use(bodyParser.urlencoded({ extended: false }))
+      app.use(bodyParser.json())
+      app.use('/', require(__dirname + '/../app'))
       server = app.listen(port, (err) ->
         return done(err) if err
         done()

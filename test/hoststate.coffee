@@ -4,7 +4,7 @@ should = require('should')
 
 module.exports = (port, request, results) ->
 
-  s = "http://localhost:#{port}/api"
+  s = "http://localhost:#{port}"
 
 
   it "must wake up the given host", (done) ->
