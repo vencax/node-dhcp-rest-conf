@@ -35,4 +35,10 @@ if ('FRONTEND_APP' in process.env) {
 var prefix = '/api';
 app.use(prefix, api);
 
+if ('FRONTEND_APP' in process.env) {
+  app.get('*', function(req, res) {
+    res.sendfile(process.env.FRONTEND_APP + '/index.html');
+  });
+}
+
 exports.app = app;
