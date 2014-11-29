@@ -41,67 +41,6 @@ module.exports = (port, request) ->
       res.statusCode.should.eql 400
       done()
 
-  it "must not create if mac already exists in DB", (done) ->
-    h =
-      mac: "111111111111"
-      ip: "192.168.1.11"
-      name: "newHost1"
-      desc: "testing voting 1 desc"
-
-    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
-      return done err if err
-      res.statusCode.should.eql 400
-      done()
-
-  it "must not create if ip already exists in DB", (done) ->
-    h =
-      mac: "111111111221"
-      ip: "192.168.1.1"
-      name: "newHost1"
-      desc: "testing voting 1 desc"
-
-    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
-      return done err if err
-      res.statusCode.should.eql 400
-      done()
-
-  it "must not create if name already exists in DB", (done) ->
-    h =
-      mac: "111111111221"
-      ip: "192.168.1.11"
-      name: "host1"
-      desc: "testing voting 1 desc"
-
-    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
-      return done err if err
-      res.statusCode.should.eql 400
-      done()
-
-  it "must not create anything when already exists", (done) ->
-    v =
-      mac: "111111111111"
-      ip: "192.168.1.11"
-      name: "newHost1"
-    request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
-      return done err if err
-      res.statusCode.should.eql 400
-      done()
-
-  it "shall return the loaded list", (done) ->
-    request "#{s}/dhcphosts", (err, res, body) ->
-      return done err if err
-      res.statusCode.should.eql 200
-      body = JSON.parse(body)
-      body.length.should.eql 2
-      done()
-
-
-  it "shall return 404 on get nonexistent host", (done) ->
-    request "#{s}/dhcphosts/22222", (err, res, body) ->
-      return done err if err
-      res.statusCode.should.eql 404
-      done()
-
   it "should create new item on right POST request", (done) ->
     request.post "#{s}/dhcphosts/", {form: _getObj()}, (err, res, body) ->
       return done err if err
@@ -114,18 +53,62 @@ module.exports = (port, request) ->
       body.desc.should.eql 'testing voting 1 desc'
       done()
 
-  created = undefined
-  createdURI = undefined
+  it "must not create if mac already exists in DB", (done) ->
+    h = _getObj()
+    h.ip = "192.168.1.111"
+    h.name = "newHost1WWWWW"
 
-  it "shall return list of lenght 3 (2 + 1 just created)", (done) ->
+    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
+      return done err if err
+      res.statusCode.should.eql 400
+      done()
+
+  it "must not create if ip already exists in DB", (done) ->
+    h = _getObj()
+    h.mac = '11e111111221'
+    h.name = "newHost1WWWWW"
+
+    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
+      return done err if err
+      res.statusCode.should.eql 400
+      done()
+
+  it "must not create if name already exists in DB", (done) ->
+    h = _getObj()
+    h.mac = '11e111111221'
+    h.ip = "192.168.1.121"
+
+    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
+      return done err if err
+      res.statusCode.should.eql 400
+      done()
+
+  it "shall return the loaded list", (done) ->
     request "#{s}/dhcphosts", (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 200
-      items = JSON.parse(body)
-      items.length.should.eql 3
-      created = items[2]
-      created.name.should.eql 'newHost1'
+      body = JSON.parse(body)
+      body.length.should.eql 1
       done()
+
+  it "shall return 404 on get nonexistent host", (done) ->
+    request "#{s}/dhcphosts/22222", (err, res, body) ->
+      return done err if err
+      res.statusCode.should.eql 404
+      done()
+
+  created = undefined
+  createdURI = undefined
+
+  # it "shall return list of lenght 3 (2 + 1 just created)", (done) ->
+  #   request "#{s}/dhcphosts", (err, res, body) ->
+  #     return done err if err
+  #     res.statusCode.should.eql 200
+  #     items = JSON.parse(body)
+  #     items.length.should.eql 3
+  #     created = items[2]
+  #     created.name.should.eql 'newHost1'
+  #     done()
 
   it "shall return object with given ID", (done) ->
     createdURI = "#{s}/dhcphosts/#{_getObj().mac}/"
@@ -151,13 +134,13 @@ module.exports = (port, request) ->
       changed.ip.should.eql '192.168.1.11'
       done()
 
-  it "shall return 404 on updating nonexistent voting", (done) ->
+  it "shall return 404 on updating nonexistent item", (done) ->
     request.put "#{s}/dhcphosts/22222/", {form: changed}, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 404
       done()
 
-  it "shall return 404 on removing nonexistent object", (done) ->
+  it "shall return 404 on removing nonexistent item", (done) ->
     request.del "#{s}/dhcphosts/22222/", {form: changed}, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 404
@@ -174,45 +157,45 @@ module.exports = (port, request) ->
       return done err if err
       res.statusCode.should.eql 200
       body = JSON.parse(body)
-      body.length.should.eql 2
+      body.length.should.eql 0
       done()
 
-  it "should change lease item to reservation", (done) ->
-    lease =
-      mac: "112233445566"
-      ip: "192.168.1.111"
-      name: "newHost1FromLease"
-    request.post "#{s}/dhcphosts/", {form: lease}, (err, res, body) ->
-      return done err if err
-      res.statusCode.should.eql 201
-      res.should.be.json
-      body = JSON.parse(body)
-      body.name.should.eql 'newHost1FromLease'
-      body.ip.should.eql '192.168.1.111'
-      body.mac.should.eql '112233445566'
-      body.res = true
-      done()
-
-  it "now returns list of 2 reservations", (done) ->
-    request "#{s}/dhcphosts", (err, res, body) ->
-      return done err if err
-      res.statusCode.should.eql 200
-      body = JSON.parse(body)
-      body.length.should.eql 2
-      for e in body
-        e.res.should.eql true
-      done()
-
-  it "must create reservation when IP is held by lease", (done) ->
-    v =
-      mac: "aabbccaa1111"
-      name: "fromLeasedHost"
-      ip: "192.168.1.233"
-    request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
-      return done err if err
-      res.statusCode.should.eql 201
-      body = JSON.parse(body)
-      body.name.should.eql v.name
-      body.ip.should.eql v.ip
-      body.mac.should.eql v.mac
-      done()
+  # it "should change lease item to reservation", (done) ->
+  #   lease =
+  #     mac: "112233445566"
+  #     ip: "192.168.1.111"
+  #     name: "newHost1FromLease"
+  #   request.post "#{s}/dhcphosts/", {form: lease}, (err, res, body) ->
+  #     return done err if err
+  #     res.statusCode.should.eql 201
+  #     res.should.be.json
+  #     body = JSON.parse(body)
+  #     body.name.should.eql 'newHost1FromLease'
+  #     body.ip.should.eql '192.168.1.111'
+  #     body.mac.should.eql '112233445566'
+  #     body.res = true
+  #     done()
+  #
+  # it "now returns list of 2 reservations", (done) ->
+  #   request "#{s}/dhcphosts", (err, res, body) ->
+  #     return done err if err
+  #     res.statusCode.should.eql 200
+  #     body = JSON.parse(body)
+  #     body.length.should.eql 2
+  #     for e in body
+  #       e.res.should.eql true
+  #     done()
+  #
+  # it "must create reservation when IP is held by lease", (done) ->
+  #   v =
+  #     mac: "aabbccaa1111"
+  #     name: "fromLeasedHost"
+  #     ip: "192.168.1.233"
+  #   request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
+  #     return done err if err
+  #     res.statusCode.should.eql 201
+  #     body = JSON.parse(body)
+  #     body.name.should.eql v.name
+  #     body.ip.should.eql v.ip
+  #     body.mac.should.eql v.mac
+  #     done()

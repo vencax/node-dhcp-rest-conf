@@ -11,9 +11,10 @@ module.exports = (port, request, results) ->
 
     host = '112233441122'
 
-    request.put "#{s}/hoststate/#{host}", (err, res) ->
+    request.put "#{s}/hoststate/#{host}", (err, res, body) ->
       return done err if err
+
       res.statusCode.should.eql 200
-      results.res.should.eql ["wakeonlan 11:22:33:44:11:22", {}]
-      results = {}
+      body = JSON.parse(body)
+      body.should.eql 1
       done()

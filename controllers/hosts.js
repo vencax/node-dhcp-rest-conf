@@ -1,7 +1,9 @@
-var db = require('./db');
+var db = require('node-py-dhcpd-manip-wrapper');
 
-exports.index = function(req, res){
-  res.send(db.list()).end();
+exports.index = function(req, res) {
+  db.list(function(err, list) {
+    res.send(list).end();
+  });
 };
 
 exports.create = function(req, res, next){
@@ -23,7 +25,7 @@ exports.show = function(req, res){
 };
 
 exports.update = function(req, res){
-  db.update(req.dhcphost, req.body, function(err, updated){
+  db.update(req.dhcphost.mac, req.body, function(err, updated){
     if(err){
       return res.status(400).send(err);
     } else{
@@ -33,7 +35,7 @@ exports.update = function(req, res){
 };
 
 exports.destroy = function(req, res){
-  db.remove(req.dhcphost, function(err, removed){
+  db.remove(req.dhcphost.mac, function(err, removed){
     if(err){
       return res.status(400).send(err);
     } else{
@@ -44,10 +46,5 @@ exports.destroy = function(req, res){
 
 // actual object loading function (loads based on req url params)
 exports.load = function(id, fn){
-  var found = db.get(id);
-  if(found){
-    fn(null, found);
-  } else {
-    fn(null, null);
-  }
+  db.get(id, fn);
 };
