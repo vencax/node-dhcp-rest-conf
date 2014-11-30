@@ -1,6 +1,6 @@
 {
   "name": "node-dhcp-rest-conf",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "REST server for DHCPd maintainence",
   "main": "main.js",
   "engines": {
@@ -8,8 +8,7 @@
   },
   "dependencies": {
     "express": "^4.9.0",
-    "express-resource": "^1.0.0",
-    "node-py-dhcpd-manip-wrapper": "git+https://github.com/vencax/node-py-dhcpd-manip-wrapper.git"
+    "express-resource": "^1.0.0"
   },
   "devDependencies": {
     "coffee-script": "^1.8.0",
