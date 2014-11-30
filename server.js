@@ -13,7 +13,7 @@ var corsOptions = {
 // create API
 var api = express();
 // enable CORS
-api.options('*', cors(corsOptions));
+api.use(cors({maxAge: 86400}));
 api.use(bodyParser.json())
 // secure it with JWT
 api.use(expressJwt({secret: process.env.SERVER_SECRET}));
