@@ -160,42 +160,42 @@ module.exports = (port, request) ->
       body.length.should.eql 0
       done()
 
-  # it "should change lease item to reservation", (done) ->
-  #   lease =
-  #     mac: "112233445566"
-  #     ip: "192.168.1.111"
-  #     name: "newHost1FromLease"
-  #   request.post "#{s}/dhcphosts/", {form: lease}, (err, res, body) ->
-  #     return done err if err
-  #     res.statusCode.should.eql 201
-  #     res.should.be.json
-  #     body = JSON.parse(body)
-  #     body.name.should.eql 'newHost1FromLease'
-  #     body.ip.should.eql '192.168.1.111'
-  #     body.mac.should.eql '112233445566'
-  #     body.res = true
-  #     done()
-  #
-  # it "now returns list of 2 reservations", (done) ->
-  #   request "#{s}/dhcphosts", (err, res, body) ->
-  #     return done err if err
-  #     res.statusCode.should.eql 200
-  #     body = JSON.parse(body)
-  #     body.length.should.eql 2
-  #     for e in body
-  #       e.res.should.eql true
-  #     done()
-  #
-  # it "must create reservation when IP is held by lease", (done) ->
-  #   v =
-  #     mac: "aabbccaa1111"
-  #     name: "fromLeasedHost"
-  #     ip: "192.168.1.233"
-  #   request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
-  #     return done err if err
-  #     res.statusCode.should.eql 201
-  #     body = JSON.parse(body)
-  #     body.name.should.eql v.name
-  #     body.ip.should.eql v.ip
-  #     body.mac.should.eql v.mac
-  #     done()
+  it "should change lease item to reservation", (done) ->
+    lease =
+      mac: "112233445566"
+      ip: "192.168.1.111"
+      name: "newHost1FromLease"
+    request.post "#{s}/dhcphosts/", {form: lease}, (err, res, body) ->
+      return done err if err
+      res.statusCode.should.eql 201
+      res.should.be.json
+      body = JSON.parse(body)
+      body.name.should.eql 'newHost1FromLease'
+      body.ip.should.eql '192.168.1.111'
+      body.mac.should.eql '112233445566'
+      body.res = true
+      done()
+
+  it "must create reservation when IP is held by lease", (done) ->
+    v =
+      mac: "aabbccaa1111"
+      name: "fromLeasedHost"
+      ip: "192.168.1.233"
+    request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
+      return done err if err
+      res.statusCode.should.eql 201
+      body = JSON.parse(body)
+      body.name.should.eql v.name
+      body.ip.should.eql v.ip
+      body.mac.should.eql v.mac
+      done()
+
+  it "now returns list of 2 reservations", (done) ->
+    request "#{s}/dhcphosts", (err, res, body) ->
+      return done err if err
+      res.statusCode.should.eql 200
+      body = JSON.parse(body)
+      body.length.should.eql 2
+      for e in body
+        e.res.should.eql true
+      done()
