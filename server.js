@@ -1,4 +1,3 @@
-
 require('coffee-script/register');
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -20,6 +19,13 @@ api.use(bodyParser.json())
 api.use(expressJwt({secret: process.env.SERVER_SECRET}));
 // create the routes
 api.use(require('./lib/app'));
+
+api.use(function(err, req, res, next) {
+  if(err.name && err.name === 'UnauthorizedError') {
+    return res.status(401).send(err.message);
+  }
+  next(err);
+});
 
 api.listen(port, function() {
   console.log('gandalf do magic on ' + port);
