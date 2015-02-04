@@ -30,7 +30,8 @@
     "should": "^4.0.4"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "start": "node server.js"
   },
   "author": "Vaclav Klecanda",
   "license": "MIT"
