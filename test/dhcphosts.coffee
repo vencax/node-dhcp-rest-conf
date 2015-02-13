@@ -42,7 +42,7 @@ module.exports = (port, request) ->
       res.statusCode.should.eql 400
       done()
 
-  it "should create new item on right POST request", (done) ->
+  it "should create new item on valid POST request", (done) ->
     data = {form: _getObj()}
     request.post "#{s}/dhcphosts/#{net}/", data, (err, res, body) ->
       return done err if err
@@ -168,7 +168,7 @@ module.exports = (port, request) ->
   it "should change lease item to reservation", (done) ->
     lease =
       mac: "112233445566"
-      ip: "192.168.1.111"
+      ip: 111
       name: "newHost1FromLease"
     request.post "#{s}/dhcphosts/#{net}/", {form: lease}, (err, res, body) ->
       return done err if err
@@ -176,7 +176,7 @@ module.exports = (port, request) ->
       res.should.be.json
       body = JSON.parse(body)
       body.name.should.eql 'newHost1FromLease'
-      body.ip.should.eql '192.168.1.111'
+      body.ip.should.eql 111
       body.mac.should.eql '112233445566'
       body.res = true
       done()
@@ -185,7 +185,7 @@ module.exports = (port, request) ->
     v =
       mac: "aabbccaa1111"
       name: "fromLeasedHost"
-      ip: "192.168.1.233"
+      ip: 233
     request.post "#{s}/dhcphosts/#{net}", {form: v}, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 201
