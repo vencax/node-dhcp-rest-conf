@@ -7,18 +7,19 @@ module.exports = (port, request) ->
   _getObj = ->
     v =
       mac: "333333333333"
-      ip: "192.168.1.11"
+      ip: 11
       name: "newHost1"
       desc: "testing voting 1 desc"
 
   s = "http://localhost:#{port}"
+  net = "192-168-1"
 
 
   it "must not create if requred param (name) is missing", (done) ->
     withoutname = _getObj()
     delete withoutname['name']
 
-    request.post "#{s}/dhcphosts", {form: withoutname}, (err, res) ->
+    request.post "#{s}/dhcphosts/#{net}", {form: withoutname}, (err, res) ->
       return done err if err
       res.statusCode.should.eql 400
       done()
@@ -27,7 +28,7 @@ module.exports = (port, request) ->
     without = _getObj()
     delete without['mac']
 
-    request.post "#{s}/dhcphosts", {form: without}, (err, res) ->
+    request.post "#{s}/dhcphosts/#{net}", {form: without}, (err, res) ->
       return done err if err
       res.statusCode.should.eql 400
       done()
@@ -36,19 +37,20 @@ module.exports = (port, request) ->
     without = _getObj()
     delete without['ip']
 
-    request.post "#{s}/dhcphosts", {form: without}, (err, res) ->
+    request.post "#{s}/dhcphosts/#{net}", {form: without}, (err, res) ->
       return done err if err
       res.statusCode.should.eql 400
       done()
 
   it "should create new item on right POST request", (done) ->
-    request.post "#{s}/dhcphosts/", {form: _getObj()}, (err, res, body) ->
+    data = {form: _getObj()}
+    request.post "#{s}/dhcphosts/#{net}/", data, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 201
       res.should.be.json
       body = JSON.parse(body)
       body.name.should.eql 'newHost1'
-      body.ip.should.eql '192.168.1.11'
+      body.ip.should.eql 11
       body.mac.should.eql '333333333333'
       body.desc.should.eql 'testing voting 1 desc'
       done()
@@ -58,7 +60,7 @@ module.exports = (port, request) ->
     h.ip = "192.168.1.111"
     h.name = "newHost1WWWWW"
 
-    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
+    request.post "#{s}/dhcphosts/#{net}", {form: h}, (err, res) ->
       return done err if err
       res.statusCode.should.eql 400
       done()
@@ -68,7 +70,7 @@ module.exports = (port, request) ->
     h.mac = '11e111111221'
     h.name = "newHost1WWWWW"
 
-    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
+    request.post "#{s}/dhcphosts/#{net}", {form: h}, (err, res) ->
       return done err if err
       res.statusCode.should.eql 400
       done()
@@ -78,21 +80,24 @@ module.exports = (port, request) ->
     h.mac = '11e111111221'
     h.ip = "192.168.1.121"
 
-    request.post "#{s}/dhcphosts", {form: h}, (err, res) ->
+    request.post "#{s}/dhcphosts/#{net}", {form: h}, (err, res) ->
       return done err if err
       res.statusCode.should.eql 400
       done()
 
   it "shall return the loaded list", (done) ->
-    request "#{s}/dhcphosts", (err, res, body) ->
+    request "#{s}/dhcphosts/#{net}", (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 200
       body = JSON.parse(body)
       body.length.should.eql 1
+      body[0].res.should.eql true
       done()
 
+  urlOfNonexistent = "#{s}/dhcphosts/#{net}/222/"
+
   it "shall return 404 on get nonexistent host", (done) ->
-    request "#{s}/dhcphosts/22222", (err, res, body) ->
+    request urlOfNonexistent, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 404
       done()
@@ -111,7 +116,7 @@ module.exports = (port, request) ->
   #     done()
 
   it "shall return object with given ID", (done) ->
-    createdURI = "#{s}/dhcphosts/#{_getObj().mac}/"
+    createdURI = "#{s}/dhcphosts/#{net}/#{_getObj().mac}/"
     request createdURI, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 200
@@ -131,17 +136,17 @@ module.exports = (port, request) ->
       res.statusCode.should.eql 200
       changed = JSON.parse(body)
       changed.name.should.eql 'The changed host'
-      changed.ip.should.eql '192.168.1.11'
+      changed.ip.should.eql 11
       done()
 
   it "shall return 404 on updating nonexistent item", (done) ->
-    request.put "#{s}/dhcphosts/22222/", {form: changed}, (err, res, body) ->
+    request.put urlOfNonexistent, {form: changed}, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 404
       done()
 
   it "shall return 404 on removing nonexistent item", (done) ->
-    request.del "#{s}/dhcphosts/22222/", {form: changed}, (err, res, body) ->
+    request.del urlOfNonexistent, {form: changed}, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 404
       done()
@@ -153,7 +158,7 @@ module.exports = (port, request) ->
       done()
 
   it "shall return list again only the initial after removal created", (done) ->
-    request "#{s}/dhcphosts", (err, res, body) ->
+    request "#{s}/dhcphosts/#{net}", (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 200
       body = JSON.parse(body)
@@ -165,7 +170,7 @@ module.exports = (port, request) ->
       mac: "112233445566"
       ip: "192.168.1.111"
       name: "newHost1FromLease"
-    request.post "#{s}/dhcphosts/", {form: lease}, (err, res, body) ->
+    request.post "#{s}/dhcphosts/#{net}/", {form: lease}, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 201
       res.should.be.json
@@ -181,7 +186,7 @@ module.exports = (port, request) ->
       mac: "aabbccaa1111"
       name: "fromLeasedHost"
       ip: "192.168.1.233"
-    request.post "#{s}/dhcphosts", {form: v}, (err, res, body) ->
+    request.post "#{s}/dhcphosts/#{net}", {form: v}, (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 201
       body = JSON.parse(body)
@@ -191,7 +196,7 @@ module.exports = (port, request) ->
       done()
 
   it "now returns list of 2 reservations", (done) ->
-    request "#{s}/dhcphosts", (err, res, body) ->
+    request "#{s}/dhcphosts/#{net}", (err, res, body) ->
       return done err if err
       res.statusCode.should.eql 200
       body = JSON.parse(body)
