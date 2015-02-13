@@ -5,8 +5,8 @@ should = require('should')
 module.exports = (port, request, execenv) ->
 
   s = "http://localhost:#{port}"
-  mac = "112233445566"
-  ip = '192.168.1.111'
+  mac = "111111111111"
+  ip = '192.168.1.23'
 
   it "must wake up the given host", (done) ->
 
@@ -17,7 +17,7 @@ module.exports = (port, request, execenv) ->
       return done err if err
 
       res.statusCode.should.eql 200
-      execenv.res[0].should.eql ["wakeonlan 11:22:33:44:55:66", {}]
+      execenv.res[0].should.eql ["wakeonlan 11:11:11:11:11:11", {}]
       body = JSON.parse(body)
       body.should.eql 1
       done()

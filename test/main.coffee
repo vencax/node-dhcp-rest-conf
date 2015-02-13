@@ -11,6 +11,10 @@ port = process.env.PORT || 3333
 process.env.MAXWAKEWAIT = 100
 process.env.WAKEWAITINTERVAL = 50
 
+rsv = '{"11:11:11:11:11:11": {"ip": "192.168.1.23", "name": "pri", "desc": ""}}'
+lss = '{"192.168.1.2": ["23:22:33:44:55:66", "pokkk"],'
+lss += '"192.168.1.3": ["33:33:33:33:33:33", "pokkk2"]}'
+
 # entry ...
 describe "app", ->
 
@@ -23,6 +27,10 @@ describe "app", ->
     cb ?= pars
     execenv.res.push([prog, rpars])
     if cb
+      if prog.indexOf('getreserved') >= 0
+        return cb(null, rsv, null)
+      if prog.indexOf('getleases') >= 0
+        return cb(null, lss, null)
       cb(execenv.err || null, execenv.stdout || null, execenv.stderr || null)
 
   # init server
@@ -47,5 +55,5 @@ describe "app", ->
     done()
 
   # run the rest of tests
-  require('./dhcphosts')(port, request)
+  require('./dhcphosts')(port, request, execenv)
   require('./hoststate')(port, request, execenv)
