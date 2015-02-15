@@ -154,8 +154,8 @@ module.exports = (port, request, execenv) ->
       execenv.res.should.eql []
       done()
 
-  changed =
-    name: "TheChangedHost"
+  changed = _getObj()
+  changed.desc = 'updated'
 
   it "shall update item with given ID with desired values", (done) ->
     request.put createdURI, {form: changed}, (err, res, body) ->
@@ -163,7 +163,7 @@ module.exports = (port, request, execenv) ->
       res.statusCode.should.eql 200
       changed = JSON.parse(body)
       changed.name.should.eql changed.name
-      changed.ip.should.eql 4
+      changed.ip.should.eql changed.ip
       _verExec(execenv.res[0], 'dhcpdmanip_cli.py remove')
       _verExec(execenv.res[1], 'dhcpdmanip_cli.py add')
       done()
@@ -214,7 +214,6 @@ module.exports = (port, request, execenv) ->
       body.ip.should.eql lease.ip
       body.mac.should.eql lease.mac
       body.res = true
-      console.log execenv.res
       _verExec(execenv.res[0], 'dhcpdmanip_cli.py add')
       done()
 
